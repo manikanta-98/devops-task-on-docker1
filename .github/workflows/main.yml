@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI Docker Pipeline
 
 on:
   push:
@@ -10,11 +10,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # 1️⃣ Checkout code
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    - name: Build Docker Image
-      run: docker build -t myapp .
+    # 2️⃣ Login to Docker Hub
+    - name: Login to Docker Hub
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-    - name: Run Container
-      run: docker run -d -p 3000:3000 myapp
+    # 3️⃣ Build Docker Image
+    - name: Build Docker Image
+      run: docker build -t ${{ secrets.DOCKER_USERNAME }}/devops-task:latest .
+
+    # 4️⃣ Push to Docker Hub
+    - name: Push Docker Image
+      run: docker push ${{ secrets.DOCKER_USERNAME }}/devops-task:latest
